@@ -3,7 +3,7 @@ from langchain.schema import BaseLanguageModel
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.callbacks.base import BaseCallbackManager
-from .prompts import FORMAT_INSTRUCTIONS, SUFFIX
+from .prompts import FORMAT_INSTRUCTIONS, SUFFIX, QUESTION_PROMPT
 from langchain.agents.agent import Agent, AgentOutputParser
 from typing import Any, Optional, Sequence
 from langchain.tools import BaseTool
@@ -12,6 +12,7 @@ from langchain.prompts.chat import (
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
+    AIMessagePromptTemplate
 )
 
 
@@ -25,7 +26,7 @@ class ChatZeroShotAgent(ZeroShotAgent):
         suffix: str = SUFFIX,
         format_instructions: str = FORMAT_INSTRUCTIONS,
     ) -> PromptTemplate:
-        """Create prompt in the style of the zero shot agent with a chat model.
+        """Create prompt in the style of the zero shot agent.
 
         Args:
             tools: List of tools the agent will have access to, used to format the
@@ -44,13 +45,22 @@ class ChatZeroShotAgent(ZeroShotAgent):
         format_instructions = format_instructions.format(
             tool_names=tool_names, tool_strings=tool_strings
         )
-        human_message_prompt = HumanMessagePromptTemplate.from_template(suffix)
+        human_prompt = PromptTemplate(
+            template=QUESTION_PROMPT, 
+            input_variables=["input"],
+            partial_variables={"tool_strings": tool_strings}
+        );
+        human_message_prompt = HumanMessagePromptTemplate(prompt=human_prompt)
+        ai_message_prompt = AIMessagePromptTemplate.from_template(suffix)
         system_message_prompt = SystemMessagePromptTemplate.from_template(
             format_instructions
         )
+        # ignore suffix
         return ChatPromptTemplate.from_messages(
-            [system_message_prompt, human_message_prompt]
+            [system_message_prompt,human_message_prompt, ai_message_prompt]
         )
+
+    # TODO Not actually split into chat/non-chat
 
     @classmethod
     def from_llm_and_tools(

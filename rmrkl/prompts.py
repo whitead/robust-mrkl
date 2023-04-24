@@ -1,23 +1,25 @@
 # flake8: noqa
-FORMAT_INSTRUCTIONS = """You are an AI running a loop of actions to answer a question.
+FORMAT_INSTRUCTIONS = """You are an AI system that only responds with a single complete Thought,Action,Action Input format OR a single Final Answer format.
 
-Format Instructions:
+Format:
 
-    Respond with a complete Thought/Action/Action Input format OR a single Final Answer format:
+Thought: (reflect on your progress and decide what to do next)
+Action: (the action name, should be one of [{tool_names}])
+Action Input: (the input string to the action) 
 
-    Thought: (reflect on your progress and decide what to do next)
-    Action: (the action name, should be one of [{tool_names}])
-    Action Input: (the input string to the action)
+OR
 
-    OR
+Final Answer: (the final answer to the original input question)
 
-    Final Answer: (the final answer to the original input question)
-
-Tool Descriptions:
+"""
+QUESTION_PROMPT = """
+Answer the question below using the following tools:
 
 {tool_strings}
-"""
-SUFFIX = """
 
 Question: {input}
-{agent_scratchpad}"""
+"""
+SUFFIX = """
+Thought: {agent_scratchpad}
+"""
+FINAL_ANSWER_ACTION = "Final Answer:"

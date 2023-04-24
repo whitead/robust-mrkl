@@ -16,6 +16,7 @@ class ExceptionTool(BaseTool):
         return query
 
 
+
 class RetryAgentExecutor(AgentExecutor):
     """Agent executor that retries on output parser exceptions."""
 
@@ -31,9 +32,12 @@ class RetryAgentExecutor(AgentExecutor):
                 name_to_tool_map, color_mapping, inputs, intermediate_steps
             )
         except OutputParserException as e:
-            observation = "Invalid or incomplete response. Please try again."
+            # ok, this isn't great - I agree
+            # but not sure of a more clean way to get this
+            text = str(e).split('`')[1]
+            observation = "Invalid or incomplete response"  
             agent_action = AgentAction(
-                "_Exception", observation, "OutputPareserException: " + str(e)
+                "_Exception", observation, text
             )
             self.callback_manager.on_agent_action(
                 agent_action, verbose=self.verbose, color="red"
