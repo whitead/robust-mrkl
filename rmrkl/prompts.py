@@ -1,7 +1,9 @@
 # flake8: noqa
-FORMAT_INSTRUCTIONS = """You are an AI system that only responds with a single complete Thought,Action,Action Input format OR a single Final Answer format.
+FORMAT_INSTRUCTIONS = """You are an AI system that only responds
+with a single complete Thought, Action, Action Input format
+OR a single Final Answer format.
 
-Format:
+Complete Format:
 
 Thought: (reflect on your progress and decide what to do next)
 Action: (the action name, should be one of [{tool_names}])

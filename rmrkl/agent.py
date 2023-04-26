@@ -1,5 +1,5 @@
 from __future__ import annotations
-from langchain.schema import BaseLanguageModel
+from langchain.chat_models.base import BaseChatModel
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.callbacks.base import BaseCallbackManager
@@ -12,15 +12,15 @@ from langchain.prompts.chat import (
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
-    AIMessagePromptTemplate
+    AIMessagePromptTemplate,
 )
 
 
 class ChatZeroShotAgent(ZeroShotAgent):
-    """Agent for the MRKL chain with chat models."""
+    """Agent for the MRKL chain."""
 
     @classmethod
-    def chat_create_prompt(
+    def create_prompt(
         cls,
         tools: Sequence[BaseTool],
         suffix: str = SUFFIX,
@@ -46,10 +46,10 @@ class ChatZeroShotAgent(ZeroShotAgent):
             tool_names=tool_names, tool_strings=tool_strings
         )
         human_prompt = PromptTemplate(
-            template=QUESTION_PROMPT, 
+            template=QUESTION_PROMPT,
             input_variables=["input"],
-            partial_variables={"tool_strings": tool_strings}
-        );
+            partial_variables={"tool_strings": tool_strings},
+        )
         human_message_prompt = HumanMessagePromptTemplate(prompt=human_prompt)
         ai_message_prompt = AIMessagePromptTemplate.from_template(suffix)
         system_message_prompt = SystemMessagePromptTemplate.from_template(
@@ -57,15 +57,13 @@ class ChatZeroShotAgent(ZeroShotAgent):
         )
         # ignore suffix
         return ChatPromptTemplate.from_messages(
-            [system_message_prompt,human_message_prompt, ai_message_prompt]
+            [system_message_prompt, human_message_prompt, ai_message_prompt]
         )
-
-    # TODO Not actually split into chat/non-chat
 
     @classmethod
     def from_llm_and_tools(
         cls,
-        llm: BaseLanguageModel,
+        llm: BaseChatModel,
         tools: Sequence[BaseTool],
         callback_manager: Optional[BaseCallbackManager] = None,
         output_parser: Optional[AgentOutputParser] = None,
@@ -75,7 +73,7 @@ class ChatZeroShotAgent(ZeroShotAgent):
     ) -> Agent:
         """Construct an agent from an LLM and tools."""
         cls._validate_tools(tools)
-        prompt = cls.chat_create_prompt(
+        prompt = cls.create_prompt(
             tools,
             suffix=suffix,
             format_instructions=format_instructions,
