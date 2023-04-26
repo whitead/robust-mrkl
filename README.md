@@ -5,7 +5,7 @@ A [langchain](https://github.com/hwchase17/langchain) agent that retries and uti
 ## Install
 
 ```sh
-pip install  git+https://github.com/whitead/robust-mrkl.git
+pip install rmrkl
 ```
 
 ## Usage
