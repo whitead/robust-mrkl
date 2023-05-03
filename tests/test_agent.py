@@ -4,7 +4,7 @@ from langchain.agents import load_tools
 
 
 def test_agent_init():
-    tools = load_tools(["python_repl"])
+    tools = load_tools(["terminal"])
     responses = [
         "I should use the REPL tool",
         "Action: Python REPL\nAction Input: print(2 + 2)",
