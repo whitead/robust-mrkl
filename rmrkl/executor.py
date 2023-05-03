@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union, Optional
 
 from langchain.agents import AgentExecutor
 from langchain.schema import AgentAction, AgentFinish, OutputParserException
