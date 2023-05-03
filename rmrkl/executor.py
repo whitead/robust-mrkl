@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple, Union
 from langchain.agents import AgentExecutor
 from langchain.schema import AgentAction, AgentFinish, OutputParserException
 from langchain.tools import BaseTool
+from langchain.callbacks.manager import CallbackManagerForChainRun
 
 
 class ExceptionTool(BaseTool):
@@ -25,6 +26,7 @@ class RetryAgentExecutor(AgentExecutor):
         color_mapping: Dict[str, str],
         inputs: Dict[str, str],
         intermediate_steps: List[Tuple[AgentAction, str]],
+        run_manager: Optional[CallbackManagerForChainRun] = None,
     ) -> Union[AgentFinish, List[Tuple[AgentAction, str]]]:
         try:
             return super()._take_next_step(
