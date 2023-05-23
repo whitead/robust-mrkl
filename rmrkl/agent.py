@@ -14,6 +14,7 @@ from langchain.prompts.chat import (
     HumanMessagePromptTemplate,
     AIMessagePromptTemplate,
 )
+from .output_parser import ChatZeroShotOutputParser
 
 
 class ChatZeroShotAgent(ZeroShotAgent):
@@ -66,7 +67,7 @@ class ChatZeroShotAgent(ZeroShotAgent):
         llm: BaseChatModel,
         tools: Sequence[BaseTool],
         callback_manager: Optional[BaseCallbackManager] = None,
-        output_parser: Optional[AgentOutputParser] = None,
+        output_parser: Optional[AgentOutputParser] = ChatZeroShotOutputParser(),
         suffix: str = SUFFIX,
         format_instructions: str = FORMAT_INSTRUCTIONS,
         **kwargs: Any,
