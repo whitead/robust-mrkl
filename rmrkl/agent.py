@@ -75,16 +75,20 @@ class ChatZeroShotAgent(ZeroShotAgent):
         tools: Sequence[BaseTool],
         callback_manager: Optional[BaseCallbackManager] = None,
         output_parser: Optional[AgentOutputParser] = ChatZeroShotOutputParser(),
+        prefix: str = PREFIX,
         suffix: str = SUFFIX,
         format_instructions: str = FORMAT_INSTRUCTIONS,
+        question_prompt: str = QUESTION_PROMPT,
         **kwargs: Any,
     ) -> Agent:
         """Construct an agent from an LLM and tools."""
         cls._validate_tools(tools)
         prompt = cls.create_prompt(
             tools,
+            prefix=prefix,
             suffix=suffix,
             format_instructions=format_instructions,
+            question_prompt=question_prompt,
         )
         llm_chain = LLMChain(
             llm=llm,
