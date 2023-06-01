@@ -1,9 +1,11 @@
 # flake8: noqa
 
 PREFIX = """
+You are an AI system.
 """
-FORMAT_INSTRUCTIONS = """You are an AI system that only responds
-with a single complete Thought, Action, Action Input format
+FORMAT_INSTRUCTIONS = """
+You should only respond with a single complete
+Thought, Action, Action Input format
 OR a single Final Answer format.
 
 Complete Format:
