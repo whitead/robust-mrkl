@@ -3,7 +3,7 @@ from langchain.chat_models.base import BaseChatModel
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.callbacks.base import BaseCallbackManager
-from .prompts import FORMAT_INSTRUCTIONS, SUFFIX, QUESTION_PROMPT
+from .prompts import FORMAT_INSTRUCTIONS, SUFFIX, QUESTION_PROMPT, PREFIX
 from langchain.agents.agent import Agent, AgentOutputParser
 from typing import Any, Optional, Sequence
 from langchain.tools import BaseTool
@@ -14,6 +14,7 @@ from langchain.prompts.chat import (
     HumanMessagePromptTemplate,
     AIMessagePromptTemplate,
 )
+from .output_parser import ChatZeroShotOutputParser
 
 
 class ChatZeroShotAgent(ZeroShotAgent):
@@ -23,8 +24,10 @@ class ChatZeroShotAgent(ZeroShotAgent):
     def create_prompt(
         cls,
         tools: Sequence[BaseTool],
+        prefix: str = PREFIX,
         suffix: str = SUFFIX,
         format_instructions: str = FORMAT_INSTRUCTIONS,
+        question_prompt: str = QUESTION_PROMPT,
     ) -> PromptTemplate:
         """Create prompt in the style of the zero shot agent.
 
@@ -46,14 +49,19 @@ class ChatZeroShotAgent(ZeroShotAgent):
             tool_names=tool_names, tool_strings=tool_strings
         )
         human_prompt = PromptTemplate(
-            template=QUESTION_PROMPT,
+            template=question_prompt,
             input_variables=["input"],
             partial_variables={"tool_strings": tool_strings},
         )
         human_message_prompt = HumanMessagePromptTemplate(prompt=human_prompt)
         ai_message_prompt = AIMessagePromptTemplate.from_template(suffix)
         system_message_prompt = SystemMessagePromptTemplate.from_template(
-            format_instructions
+            '\n\n'.join(
+                [
+                    prefix,
+                    format_instructions
+                ]
+            )
         )
         # ignore suffix
         return ChatPromptTemplate.from_messages(
@@ -66,17 +74,21 @@ class ChatZeroShotAgent(ZeroShotAgent):
         llm: BaseChatModel,
         tools: Sequence[BaseTool],
         callback_manager: Optional[BaseCallbackManager] = None,
-        output_parser: Optional[AgentOutputParser] = None,
+        output_parser: Optional[AgentOutputParser] = ChatZeroShotOutputParser(),
+        prefix: str = PREFIX,
         suffix: str = SUFFIX,
         format_instructions: str = FORMAT_INSTRUCTIONS,
+        question_prompt: str = QUESTION_PROMPT,
         **kwargs: Any,
     ) -> Agent:
         """Construct an agent from an LLM and tools."""
         cls._validate_tools(tools)
         prompt = cls.create_prompt(
             tools,
+            prefix=prefix,
             suffix=suffix,
             format_instructions=format_instructions,
+            question_prompt=question_prompt,
         )
         llm_chain = LLMChain(
             llm=llm,
