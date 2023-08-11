@@ -59,7 +59,7 @@ class ChatZeroShotAgent(ZeroShotAgent):
             template=suffix,
             input_variables=input_variables,
         )
-        ai_message_prompt = AIMessagePromptTemplate(suffix_prompt)
+        ai_message_prompt = AIMessagePromptTemplate(prompt=suffix_prompt)
         system_message_prompt = SystemMessagePromptTemplate.from_template(
             '\n\n'.join(
                 [
