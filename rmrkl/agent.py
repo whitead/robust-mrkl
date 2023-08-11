@@ -5,7 +5,7 @@ from langchain.chains import LLMChain
 from langchain.callbacks.base import BaseCallbackManager
 from .prompts import FORMAT_INSTRUCTIONS, SUFFIX, QUESTION_PROMPT, PREFIX
 from langchain.agents.agent import Agent, AgentOutputParser
-from typing import Any, Optional, Sequence
+from typing import Any, Optional, Sequence, List
 from langchain.tools import BaseTool
 from langchain.agents.mrkl.base import ZeroShotAgent
 from langchain.prompts.chat import (
@@ -28,6 +28,7 @@ class ChatZeroShotAgent(ZeroShotAgent):
         suffix: str = SUFFIX,
         format_instructions: str = FORMAT_INSTRUCTIONS,
         question_prompt: str = QUESTION_PROMPT,
+        input_variables: Optional[List[str]] = None,
     ) -> PromptTemplate:
         """Create prompt in the style of the zero shot agent.
 
@@ -54,8 +55,23 @@ class ChatZeroShotAgent(ZeroShotAgent):
             partial_variables={"tool_strings": tool_strings},
         )
         human_message_prompt = HumanMessagePromptTemplate(prompt=human_prompt)
-        ai_message_prompt = AIMessagePromptTemplate.from_template(suffix)
-        system_message_prompt = SystemMessagePromptTemplate.from_template(
+        if input_variables is not None:
+            suffix_prompt = PromptTemplate(
+                template=suffix,
+                input_variables=input_variables,
+            )
+            ai_message_prompt = AIMessagePromptTemplate(prompt=suffix_prompt)
+            system_message_prompt = SystemMessagePromptTemplate.from_template(
+                '\n\n'.join(
+                    [
+                        prefix,
+                        format_instructions
+                    ]
+                )
+            )
+        else:
+            ai_message_prompt = AIMessagePromptTemplate.from_template(suffix)
+            system_message_prompt = SystemMessagePromptTemplate.from_template(
             '\n\n'.join(
                 [
                     prefix,
@@ -79,6 +95,7 @@ class ChatZeroShotAgent(ZeroShotAgent):
         suffix: str = SUFFIX,
         format_instructions: str = FORMAT_INSTRUCTIONS,
         question_prompt: str = QUESTION_PROMPT,
+        input_variables: Optional[List[str]] = None,
         **kwargs: Any,
     ) -> Agent:
         """Construct an agent from an LLM and tools."""
@@ -89,6 +106,7 @@ class ChatZeroShotAgent(ZeroShotAgent):
             suffix=suffix,
             format_instructions=format_instructions,
             question_prompt=question_prompt,
+            input_variables=input_variables,
         )
         llm_chain = LLMChain(
             llm=llm,
@@ -97,6 +115,8 @@ class ChatZeroShotAgent(ZeroShotAgent):
         )
         tool_names = [tool.name for tool in tools]
         _output_parser = output_parser or cls._get_default_output_parser()
+
+ 
         return cls(
             llm_chain=llm_chain,
             allowed_tools=tool_names,
