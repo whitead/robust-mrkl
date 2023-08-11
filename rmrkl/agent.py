@@ -55,12 +55,23 @@ class ChatZeroShotAgent(ZeroShotAgent):
             partial_variables={"tool_strings": tool_strings},
         )
         human_message_prompt = HumanMessagePromptTemplate(prompt=human_prompt)
-        suffix_prompt = PromptTemplate(
-            template=suffix,
-            input_variables=input_variables,
-        )
-        ai_message_prompt = AIMessagePromptTemplate(prompt=suffix_prompt)
-        system_message_prompt = SystemMessagePromptTemplate.from_template(
+        if input_variables is not None:
+            suffix_prompt = PromptTemplate(
+                template=suffix,
+                input_variables=input_variables,
+            )
+            ai_message_prompt = AIMessagePromptTemplate(prompt=suffix_prompt)
+            system_message_prompt = SystemMessagePromptTemplate.from_template(
+                '\n\n'.join(
+                    [
+                        prefix,
+                        format_instructions
+                    ]
+                )
+            )
+        else:
+            ai_message_prompt = AIMessagePromptTemplate.from_template(suffix)
+            system_message_prompt = SystemMessagePromptTemplate.from_template(
             '\n\n'.join(
                 [
                     prefix,
@@ -104,6 +115,8 @@ class ChatZeroShotAgent(ZeroShotAgent):
         )
         tool_names = [tool.name for tool in tools]
         _output_parser = output_parser or cls._get_default_output_parser()
+
+ 
         return cls(
             llm_chain=llm_chain,
             allowed_tools=tool_names,
